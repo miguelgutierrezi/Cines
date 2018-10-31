@@ -2,30 +2,47 @@
 
 using namespace std;
 
-void agregar_pelicula (string peliculas[], int tam) {
+struct Silla {
+    int fila;
+    int col;
+    bool ocupada = false;
+    string cliente;
+};
+
+struct Sala {
+    int numero;
+    Silla sillas[26][20];
+};
+
+struct Funcion {
+    string hora;
+    Sala sala;
+};
+
+struct Pelicula {
+    string nombre;
+    Funcion funciones[10];
+    int cant_funciones = 0;
+};
+
+void agregar_pelicula (Pelicula peliculas[], int tam) {
     int cant_horas, cant_sillas;
     string hora, silla;
     cout<<"Ingrese el nombre de la pelicula: ";
-    cin>>peliculas[tam];
-    cout<<"Cuantos horarios tendra la pelicula? ";
-    cin>>cant_horas;
-    for (int i=0; i<cant_horas; i++) {
-        cout<<"Ingrese el horario No. "<<i+1<<" (Formato: hh:mm): ";
-        cin>>hora;
+    cin>>peliculas[tam].nombre;
+    cout<<"Cuantas funciones tendra la pelicula? ";
+    cin>>peliculas[tam].cant_funciones;
+    for (int i=0; i<peliculas[tam].cant_funciones; i++) {
+        cout<<"Ingrese el horario de la funcion No. "<<i+1<<" (Formato: hh:mm): ";
+        cin>>peliculas[tam].funciones[i].hora;
     }
-    cout<<"Cuantas sillas tendra la pelicula? ";
-    cin>>cant_sillas;
-    for (int i=0; i<cant_sillas; i++) {
-        cout<<"Ingrese la silla No. "<<i+1<<" (Ej: A1): ";
-        cin>>silla;
-    }
-    cout<<"La pelicula "<<peliculas[tam]<<" fue añadida al sistema"<<endl;
+    cout<<"La pelicula "<<peliculas[tam].nombre<<" fue añadida al sistema"<<endl;
 }
 
-void seleccionar_pelicula (string peliculas[], int tam) {
+void seleccionar_pelicula (Pelicula peliculas[], int tam) {
     int peli, opcion;
     for (int i=0; i<tam; i++) {
-        cout<<"\t"<<i+1<<" "<<peliculas[i]<<endl;
+        cout<<"\t"<<i+1<<" "<<peliculas[i].nombre<<endl;
     }
     cout<<"Ingrese el numero de la pelicula que desea consultar: ";
     cin>>peli;
@@ -38,7 +55,51 @@ void seleccionar_pelicula (string peliculas[], int tam) {
         cin>>opcion;
         switch(opcion) {
         case 1:
-            cout<<"Opcion no disponible por el momento"<<endl;
+            cout<<"1. Comprar silla"<<endl;
+            cout<<"2. Cancelar silla"<<endl;
+            int seat;
+            cout<<"Ingrese lo que desea realizar: ";
+            cin>>seat;
+            if (seat == 1) {
+                for (int i=0; i<peliculas[peli-1].cant_funciones; i++) {
+                    cout<<"\t\t"<<i+1<<" "<<peliculas[peli-1].funciones[i].hora<<endl;
+                }
+                int t;
+                cout<<"Ingrese el numero de la funcion de la que quiere comprar la boleta: ";
+                cin>>t;
+                for (int j=0; j<26; j++) {
+                    for (int k=0; k<20; k++) {
+                        if (peliculas[peli-1].funciones[t-1].sala.sillas[j][k].ocupada == false) {
+                            cout<<j+1<<" "<<k+1<<endl;
+                        }
+                    }
+                }
+                cout<<"Seleccione la silla que desea comprar (Ej: 1 1): "<<endl;
+                int fila, col;
+                cin>>fila>>col;
+                peliculas[peli-1].funciones[t-1].sala.sillas[fila-1][col-1].ocupada = true;
+                cout<<"Se ha comprado la silla "<<fila<<" "<<col<<endl;
+            }
+            if (seat == 2) {
+                for (int i=0; i<peliculas[peli-1].cant_funciones; i++) {
+                    cout<<"\t\t"<<i+1<<" "<<peliculas[peli-1].funciones[i].hora<<endl;
+                }
+                int t;
+                cout<<"Ingrese el numero de la funcion de la que quiere cancelar la boleta: ";
+                cin>>t;
+                for (int j=0; j<26; j++) {
+                    for (int k=0; k<20; k++) {
+                        if (peliculas[peli-1].funciones[t-1].sala.sillas[j][k].ocupada == true) {
+                            cout<<j+1<<" "<<k+1<<endl;
+                        }
+                    }
+                }
+                cout<<"Seleccione la silla que desea cancelar (Ej: 1 1): "<<endl;
+                int fila, col;
+                cin>>fila>>col;
+                peliculas[peli-1].funciones[t-1].sala.sillas[fila-1][col-1].ocupada = false;
+                cout<<"Se ha cancelado la compra de la silla "<<fila<<" "<<col<<endl;
+            }
             break;
 
         case 2:
@@ -51,16 +112,16 @@ void seleccionar_pelicula (string peliculas[], int tam) {
     } while(opcion == 1 || opcion == 2);
 }
 
-void eliminar_pelicula (string peliculas[], int tam) {
+void eliminar_pelicula (Pelicula peliculas[], int tam) {
     int peli, opcion;
     string nombre;
     for (int i=0; i<tam; i++) {
-        cout<<"\t"<<i+1<<" "<<peliculas[i]<<endl;
+        cout<<"\t"<<i+1<<" "<<peliculas[i].nombre<<endl;
     }
     cout<<"Ingrese el numero de la pelicula que desea eliminar: ";
     cin>>peli;
 
-    nombre = peliculas[peli-1];
+    nombre = peliculas[peli-1].nombre;
 
     peliculas[peli-1] = peliculas[tam-1];
 
@@ -70,10 +131,10 @@ void eliminar_pelicula (string peliculas[], int tam) {
 int main()
 {
     int n;
-    string peliculas [10];
-    peliculas[0] = "It";
-    peliculas[1] = "Halloween";
-    peliculas[2] = "Venom";
+    Pelicula peliculas [10];
+    peliculas[0].nombre = "It";
+    peliculas[1].nombre = "Halloween";
+    peliculas[2].nombre = "Venom";
     int tam = 3;
     do  {
         cout<<"Cines"<<endl;
